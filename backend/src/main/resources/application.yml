@@ -1,0 +1,20 @@
+spring:
+  application:
+    name: ai-desktop-companion-backend
+  profiles:
+    active: dev
+
+server:
+  port: 8080
+
+app:
+  jwt:
+    secret: 404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970
+    expiration-ms: 86400000 # 24 hours
+  ai:
+    provider: local # Options: local, openai, ollama
+    openai:
+      api-key: ${OPENAI_API_KEY:mock-key}
+      model: gpt-4o-mini
+    ollama:
+      base-url: http://localhost:11434

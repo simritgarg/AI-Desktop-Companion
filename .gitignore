@@ -1,0 +1,103 @@
+# ============================================================
+# OS & Editor Files
+# ============================================================
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+.DS_Store
+
+# IDEs
+.idea/
+*.iml
+.classpath
+.project
+.settings/
+.vscode/
+
+# ============================================================
+# Environment & Secrets (Never Commit API Keys or Local Passwords)
+# ============================================================
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+application-local.yml
+application-local.yaml
+application-local.properties
+
+# Keys & Certificates
+*.pem
+*.key
+*.p12
+*.jks
+
+# ============================================================
+# Desktop / Node.js / Next.js / Electron
+# ============================================================
+node_modules/
+**/node_modules/
+
+# Next.js Build Outputs
+.next/
+```gitignore
+**/.next/
+out/
+build/
+
+# Electron Compilation & Distribution
+dist/
+**/dist/
+release/
+electron-dist/
+*.exe
+*.AppImage
+*.dmg
+
+# Package Manager Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# TypeScript cache
+*.tsbuildinfo
+
+# ============================================================
+# Backend / Java / Maven / Spring Boot
+# ============================================================
+# Maven Target Directory (Compiled .class files & JARs)
+target/
+**/target/
+
+# Compiled Java Classes
+*.class
+
+# Spring Boot Logs & Temp Files
+logs/
+*.log
+
+# ============================================================
+# Databases & Local Data
+# ============================================================
+# H2 Embedded DB Files
+*.mv.db
+*.trace.db
+*.lock.db
+
+# SQLite / Local Databases
+*.sqlite
+*.sqlite3
+*.db
+data/
+database/
+
+# ============================================================
+# Temporary & Test Files
+# ============================================================
+coverage/
+*.lcov
+*.tmp
+*.temp
+*.swp
+*.bak
