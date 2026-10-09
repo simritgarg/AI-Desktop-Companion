@@ -6,8 +6,6 @@ An animated virtual female desktop companion that lives in the bottom-right corn
 
 ---
 
-## 🌟 Resume Bullet Point
-> **Built an AI-powered desktop productivity companion using Java Spring Boot, Next.js, Electron, and PostgreSQL that combines intelligent reminders, goal management, focus tracking, behavioral analytics, personalized AI coaching, and an animated virtual desktop companion.**
 
 ---
 
