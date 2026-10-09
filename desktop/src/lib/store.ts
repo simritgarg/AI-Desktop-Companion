@@ -37,6 +37,8 @@ export interface AvatarConfig {
   accessories: 'NONE' | 'HEADPHONES' | 'BOW';
 }
 
+export type AppTheme = 'COFFEE' | 'DARK';
+
 interface CompanionStore {
   characterState: CharacterState;
   interactionStage: InteractionStage;
@@ -48,6 +50,7 @@ interface CompanionStore {
   activeFocusSession: boolean;
   focusMinutesRemaining: number;
   avatarConfig: AvatarConfig;
+  appTheme: AppTheme;
   
   setCharacterState: (state: CharacterState) => void;
   setInteractionStage: (stage: InteractionStage) => void;
@@ -56,6 +59,7 @@ interface CompanionStore {
   setPersonality: (personality: 'BEST_FRIEND' | 'COACH' | 'STUDY_BUDDY' | 'STRICT_MENTOR') => void;
   setCompanionResponse: (res: AICoachResponse) => void;
   setAvatarConfig: (config: Partial<AvatarConfig>) => void;
+  setAppTheme: (theme: AppTheme) => void;
   startWalkOut: () => void;
   startWalkIn: (message?: string, actionState?: CharacterState, buttons?: string[]) => void;
 }
@@ -70,6 +74,7 @@ export const useCompanionStore = create<CompanionStore>((set, get) => ({
   companionName: 'Aira',
   activeFocusSession: false,
   focusMinutesRemaining: 25,
+  appTheme: 'COFFEE',
   avatarConfig: {
     hairStyle: 'LONG_WAVY',
     hairColor: '#4C1D95',
@@ -96,6 +101,7 @@ export const useCompanionStore = create<CompanionStore>((set, get) => ({
   setAvatarConfig: (config) => set((state) => ({
     avatarConfig: { ...state.avatarConfig, ...config }
   })),
+  setAppTheme: (theme) => set({ appTheme: theme }),
 
   startWalkOut: () => {
     set({ interactionStage: 'WALKING_OUT', characterState: 'WALKING_OUT' });

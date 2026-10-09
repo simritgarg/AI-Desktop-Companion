@@ -21,6 +21,13 @@ public class GoalController {
         return ResponseEntity.ok(goalRepository.findAll());
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<GoalEntity> getGoalById(@PathVariable Long id) {
+        return goalRepository.findById(id)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+
     @PostMapping
     public ResponseEntity<GoalEntity> createGoal(@RequestBody GoalEntity goal) {
         if (goal.getGoalType() == null) goal.setGoalType("SHORT_TERM");

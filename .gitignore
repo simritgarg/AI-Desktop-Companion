@@ -40,7 +40,6 @@ node_modules/
 
 # Next.js Build Outputs
 .next/
-```gitignore
 **/.next/
 out/
 build/

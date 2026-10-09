@@ -22,6 +22,13 @@ public class TaskController {
         return ResponseEntity.ok(taskRepository.findAll());
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<TaskEntity> getTaskById(@PathVariable Long id) {
+        return taskRepository.findById(id)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+
     @PostMapping
     public ResponseEntity<TaskEntity> createTask(@RequestBody TaskEntity task) {
         if (task.getStatus() == null) task.setStatus("TODO");
