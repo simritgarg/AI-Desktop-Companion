@@ -6,26 +6,18 @@ import { usePathname, useRouter } from 'next/navigation';
 import { 
   LayoutDashboard, 
   GraduationCap, 
-  Code, 
-  FileCheck2, 
-  AlertOctagon, 
-  RotateCcw, 
   Calendar, 
   HeartHandshake, 
-  BookOpen, 
   Target, 
-  Timer, 
-  BarChart3, 
-  Settings, 
   Coffee,
-  FileText,
   CheckSquare,
   Flame,
   Plus,
   Globe,
   Briefcase,
   UserPlus,
-  Sparkles,
+  Trash2,
+  BarChart2,
   X
 } from 'lucide-react';
 import { useUserStore } from '@/lib/userStore';
@@ -33,7 +25,7 @@ import { useUserStore } from '@/lib/userStore';
 export const Sidebar: React.FC = () => {
   const pathname = usePathname();
   const router = useRouter();
-  const { customWorkspaces, addWorkspace, profile, registerNewUser } = useUserStore();
+  const { customWorkspaces, addWorkspace, deleteWorkspace, profile, registerNewUser } = useUserStore();
 
   // Modals state
   const [showAddWsModal, setShowAddWsModal] = useState(false);
@@ -69,6 +61,17 @@ export const Sidebar: React.FC = () => {
     router.push(`/workspace/${created.id}`);
   };
 
+  const handleDeleteWorkspaceDirect = (e: React.MouseEvent, wsId: string, wsName: string) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (confirm(`Are you sure you want to delete the "${wsName}" workspace?`)) {
+      deleteWorkspace(wsId);
+      if (pathname === `/workspace/${wsId}`) {
+        router.push('/');
+      }
+    }
+  };
+
   const handleRegisterNewUser = (e: React.FormEvent) => {
     e.preventDefault();
     if (!regName.trim()) return;
@@ -83,7 +86,7 @@ export const Sidebar: React.FC = () => {
     <>
       <aside className="w-64 min-h-screen flex flex-col justify-between bg-espresso text-coffee-100 border-r border-coffee-900/40">
         <div className="space-y-3 p-4">
-          {/* App Header & User Account Switcher */}
+          {/* App Header & User Account Info */}
           <div className="flex items-center gap-3 px-3 py-3 rounded-2xl bg-cocoa/40 border border-cocoa/30">
             <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-camel text-espresso shadow-md font-bold text-lg">
               <Coffee className="w-5 h-5" />
@@ -109,11 +112,12 @@ export const Sidebar: React.FC = () => {
 
           {/* Navigation Sections */}
           <div className="space-y-4 max-h-[calc(100vh-190px)] overflow-y-auto pr-1 custom-scrollbar text-xs">
-            {/* Section 1: Command Centre */}
+            {/* Section 1: Command Centre (Dashboard, Task Planner, Goals, Habit & Streaks, Calendar, Motivation and Vision) */}
             <div className="space-y-0.5">
               <h2 className="px-3 pt-2 text-[10px] font-bold uppercase tracking-widest text-camel/80">
                 Command Centre
               </h2>
+
               <Link
                 href="/"
                 className={`flex items-center gap-3 px-3 py-2 rounded-xl font-medium transition-all ${
@@ -125,6 +129,7 @@ export const Sidebar: React.FC = () => {
                 <LayoutDashboard className="w-4 h-4 text-camel" />
                 <span>Dashboard</span>
               </Link>
+
               <Link
                 href="/tasks"
                 className={`flex items-center gap-3 px-3 py-2 rounded-xl font-medium transition-all ${
@@ -134,8 +139,33 @@ export const Sidebar: React.FC = () => {
                 }`}
               >
                 <CheckSquare className="w-4 h-4 text-camel/70" />
-                <span>Tasks Planner</span>
+                <span>Task Planner</span>
               </Link>
+
+              <Link
+                href="/goals"
+                className={`flex items-center gap-3 px-3 py-2 rounded-xl font-medium transition-all ${
+                  pathname === '/goals'
+                    ? 'bg-camel/30 text-coffee-100 border border-camel/40 shadow-sm'
+                    : 'text-coffee-300 hover:bg-cocoa/30 hover:text-coffee-100'
+                }`}
+              >
+                <Target className="w-4 h-4 text-camel/70" />
+                <span>Goals</span>
+              </Link>
+
+              <Link
+                href="/habits"
+                className={`flex items-center gap-3 px-3 py-2 rounded-xl font-medium transition-all ${
+                  pathname === '/habits'
+                    ? 'bg-camel/30 text-coffee-100 border border-camel/40 shadow-sm'
+                    : 'text-coffee-300 hover:bg-cocoa/30 hover:text-coffee-100'
+                }`}
+              >
+                <Flame className="w-4 h-4 text-amber-400" />
+                <span>Habit & Streaks</span>
+              </Link>
+
               <Link
                 href="/calendar"
                 className={`flex items-center gap-3 px-3 py-2 rounded-xl font-medium transition-all ${
@@ -145,15 +175,27 @@ export const Sidebar: React.FC = () => {
                 }`}
               >
                 <Calendar className="w-4 h-4 text-camel/70" />
-                <span>Coffee Calendar</span>
+                <span>Calendar</span>
+              </Link>
+
+              <Link
+                href="/motivation"
+                className={`flex items-center gap-3 px-3 py-2 rounded-xl font-medium transition-all ${
+                  pathname === '/motivation'
+                    ? 'bg-camel/30 text-coffee-100 border border-camel/40 shadow-sm'
+                    : 'text-coffee-300 hover:bg-cocoa/30 hover:text-coffee-100'
+                }`}
+              >
+                <HeartHandshake className="w-4 h-4 text-camel/70" />
+                <span>Motivation and Vision</span>
               </Link>
             </div>
 
-            {/* Section 2: Career Workspaces with + Add Button */}
+            {/* Section 2: Career Workspace */}
             <div className="space-y-0.5">
               <div className="flex items-center justify-between px-3 pt-2">
                 <h2 className="text-[10px] font-bold uppercase tracking-widest text-camel/80">
-                  Career Workspaces
+                  Career Workspace
                 </h2>
                 <button
                   onClick={() => setShowAddWsModal(true)}
@@ -164,43 +206,29 @@ export const Sidebar: React.FC = () => {
                 </button>
               </div>
 
-              <Link
-                href="/ssc-cgl"
-                className={`flex items-center gap-3 px-3 py-2 rounded-xl font-medium transition-all ${
-                  pathname === '/ssc-cgl'
-                    ? 'bg-camel/30 text-coffee-100 border border-camel/40 shadow-sm'
-                    : 'text-coffee-300 hover:bg-cocoa/30 hover:text-coffee-100'
-                }`}
-              >
-                <GraduationCap className="w-4 h-4 text-camel/80" />
-                <span>SSC CGL Prep</span>
-              </Link>
-              <Link
-                href="/it-career"
-                className={`flex items-center gap-3 px-3 py-2 rounded-xl font-medium transition-all ${
-                  pathname === '/it-career'
-                    ? 'bg-camel/30 text-coffee-100 border border-camel/40 shadow-sm'
-                    : 'text-coffee-300 hover:bg-cocoa/30 hover:text-coffee-100'
-                }`}
-              >
-                <Code className="w-4 h-4 text-camel/80" />
-                <span>IT Career Prep</span>
-              </Link>
-
-              {/* Dynamic User Created Workspaces */}
+              {/* Dynamic Workspaces */}
               {customWorkspaces.map((ws) => (
-                <Link
-                  key={ws.id}
-                  href={`/workspace/${ws.id}`}
-                  className={`flex items-center gap-3 px-3 py-2 rounded-xl font-medium transition-all ${
-                    pathname === `/workspace/${ws.id}`
-                      ? 'bg-camel/30 text-coffee-100 border border-camel/40 shadow-sm'
-                      : 'text-coffee-300 hover:bg-cocoa/30 hover:text-coffee-100'
-                  }`}
-                >
-                  <Briefcase className="w-4 h-4 text-camel/60" />
-                  <span className="truncate">{ws.name}</span>
-                </Link>
+                <div key={ws.id} className="group relative flex items-center">
+                  <Link
+                    href={`/workspace/${ws.id}`}
+                    className={`flex-1 flex items-center gap-3 px-3 py-2 rounded-xl font-medium transition-all ${
+                      pathname === `/workspace/${ws.id}`
+                        ? 'bg-camel/30 text-coffee-100 border border-camel/40 shadow-sm'
+                        : 'text-coffee-300 hover:bg-cocoa/30 hover:text-coffee-100'
+                    }`}
+                  >
+                    <Briefcase className="w-4 h-4 text-camel/60 flex-shrink-0" />
+                    <span className="truncate pr-4">{ws.name}</span>
+                  </Link>
+
+                  <button
+                    onClick={(e) => handleDeleteWorkspaceDirect(e, ws.id, ws.name)}
+                    className="absolute right-2 opacity-0 group-hover:opacity-100 p-1 text-khaki hover:text-rose-400 transition-all"
+                    title={`Delete ${ws.name}`}
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                  </button>
+                </div>
               ))}
 
               <button
@@ -212,11 +240,24 @@ export const Sidebar: React.FC = () => {
               </button>
             </div>
 
-            {/* Section 3: External Platforms & Integrations (LeetCode, etc.) */}
+            {/* Section 3: Analysis Section (SSC CGL & LeetCode External Coding Platforms) */}
             <div className="space-y-0.5">
               <h2 className="px-3 pt-2 text-[10px] font-bold uppercase tracking-widest text-camel/80">
-                External Coding Platforms
+                Analysis Section
               </h2>
+
+              <Link
+                href="/test-series"
+                className={`flex items-center gap-3 px-3 py-2 rounded-xl font-medium transition-all ${
+                  pathname === '/test-series'
+                    ? 'bg-camel/30 text-coffee-100 border border-camel/40 shadow-sm'
+                    : 'text-coffee-300 hover:bg-cocoa/30 hover:text-coffee-100'
+                }`}
+              >
+                <GraduationCap className="w-4 h-4 text-camel/80" />
+                <span>SSC Analytics & Mocks</span>
+              </Link>
+
               <Link
                 href="/coding-platforms"
                 className={`flex items-center gap-3 px-3 py-2 rounded-xl font-medium transition-all ${
@@ -230,64 +271,6 @@ export const Sidebar: React.FC = () => {
                   <span>LeetCode & Stats</span>
                   <span className="text-[9px] px-1.5 py-0.5 rounded bg-emerald-950/60 text-emerald-300 font-mono">Sync</span>
                 </div>
-              </Link>
-            </div>
-
-            {/* Section 4: Testing & Mastery */}
-            <div className="space-y-0.5">
-              <h2 className="px-3 pt-2 text-[10px] font-bold uppercase tracking-widest text-camel/80">
-                Testing & Mastery
-              </h2>
-              <Link href="/test-series" className={`flex items-center gap-3 px-3 py-2 rounded-xl font-medium transition-all ${pathname === '/test-series' ? 'bg-camel/30 text-coffee-100 border border-camel/40 shadow-sm' : 'text-coffee-300 hover:bg-cocoa/30 hover:text-coffee-100'}`}>
-                <FileCheck2 className="w-4 h-4 text-camel/60" />
-                <span>Test Series Centre</span>
-              </Link>
-              <Link href="/mistakes" className={`flex items-center gap-3 px-3 py-2 rounded-xl font-medium transition-all ${pathname === '/mistakes' ? 'bg-camel/30 text-coffee-100 border border-camel/40 shadow-sm' : 'text-coffee-300 hover:bg-cocoa/30 hover:text-coffee-100'}`}>
-                <AlertOctagon className="w-4 h-4 text-rose-400/80" />
-                <span>Mistake Bank</span>
-              </Link>
-              <Link href="/revision" className={`flex items-center gap-3 px-3 py-2 rounded-xl font-medium transition-all ${pathname === '/revision' ? 'bg-camel/30 text-coffee-100 border border-camel/40 shadow-sm' : 'text-coffee-300 hover:bg-cocoa/30 hover:text-coffee-100'}`}>
-                <RotateCcw className="w-4 h-4 text-camel/60" />
-                <span>Revision & PYQ</span>
-              </Link>
-              <Link href="/notes" className={`flex items-center gap-3 px-3 py-2 rounded-xl font-medium transition-all ${pathname === '/notes' ? 'bg-camel/30 text-coffee-100 border border-camel/40 shadow-sm' : 'text-coffee-300 hover:bg-cocoa/30 hover:text-coffee-100'}`}>
-                <FileText className="w-4 h-4 text-camel/60" />
-                <span>Study Notes Base</span>
-              </Link>
-            </div>
-
-            {/* Section 5: Personal & Journal */}
-            <div className="space-y-0.5">
-              <h2 className="px-3 pt-2 text-[10px] font-bold uppercase tracking-widest text-camel/80">
-                Personal & Journal
-              </h2>
-              <Link href="/diary" className={`flex items-center gap-3 px-3 py-2 rounded-xl font-medium transition-all ${pathname === '/diary' ? 'bg-camel/30 text-coffee-100 border border-camel/40 shadow-sm' : 'text-coffee-300 hover:bg-cocoa/30 hover:text-coffee-100'}`}>
-                <BookOpen className="w-4 h-4 text-camel/60" />
-                <span>Private Diary</span>
-              </Link>
-              <Link href="/motivation" className={`flex items-center gap-3 px-3 py-2 rounded-xl font-medium transition-all ${pathname === '/motivation' ? 'bg-camel/30 text-coffee-100 border border-camel/40 shadow-sm' : 'text-coffee-300 hover:bg-cocoa/30 hover:text-coffee-100'}`}>
-                <HeartHandshake className="w-4 h-4 text-camel/60" />
-                <span>Motivation & Vision</span>
-              </Link>
-              <Link href="/goals" className={`flex items-center gap-3 px-3 py-2 rounded-xl font-medium transition-all ${pathname === '/goals' ? 'bg-camel/30 text-coffee-100 border border-camel/40 shadow-sm' : 'text-coffee-300 hover:bg-cocoa/30 hover:text-coffee-100'}`}>
-                <Target className="w-4 h-4 text-camel/60" />
-                <span>Goals</span>
-              </Link>
-              <Link href="/habits" className={`flex items-center gap-3 px-3 py-2 rounded-xl font-medium transition-all ${pathname === '/habits' ? 'bg-camel/30 text-coffee-100 border border-camel/40 shadow-sm' : 'text-coffee-300 hover:bg-cocoa/30 hover:text-coffee-100'}`}>
-                <Flame className="w-4 h-4 text-amber-400" />
-                <span>Habits & Streaks</span>
-              </Link>
-              <Link href="/focus" className={`flex items-center gap-3 px-3 py-2 rounded-xl font-medium transition-all ${pathname === '/focus' ? 'bg-camel/30 text-coffee-100 border border-camel/40 shadow-sm' : 'text-coffee-300 hover:bg-cocoa/30 hover:text-coffee-100'}`}>
-                <Timer className="w-4 h-4 text-camel/60" />
-                <span>Focus Timer</span>
-              </Link>
-              <Link href="/analytics" className={`flex items-center gap-3 px-3 py-2 rounded-xl font-medium transition-all ${pathname === '/analytics' ? 'bg-camel/30 text-coffee-100 border border-camel/40 shadow-sm' : 'text-coffee-300 hover:bg-cocoa/30 hover:text-coffee-100'}`}>
-                <BarChart3 className="w-4 h-4 text-camel/60" />
-                <span>Analytics & AI</span>
-              </Link>
-              <Link href="/settings" className={`flex items-center gap-3 px-3 py-2 rounded-xl font-medium transition-all ${pathname === '/settings' ? 'bg-camel/30 text-coffee-100 border border-camel/40 shadow-sm' : 'text-coffee-300 hover:bg-cocoa/30 hover:text-coffee-100'}`}>
-                <Settings className="w-4 h-4 text-camel/60" />
-                <span>Settings</span>
               </Link>
             </div>
           </div>
@@ -324,7 +307,7 @@ export const Sidebar: React.FC = () => {
                 <input
                   type="text"
                   required
-                  placeholder="e.g. UPSC CSE, Data Science, GATE 2026, DevOps"
+                  placeholder="e.g. SSC CGL Prep, IT & Web Engineering, UPSC CSE"
                   value={wsName}
                   onChange={(e) => setWsName(e.target.value)}
                   className="w-full bg-linen border border-border rounded-xl px-3 py-2 text-espresso focus:outline-none focus:border-cocoa"
@@ -338,7 +321,7 @@ export const Sidebar: React.FC = () => {
                   onChange={(e) => setWsCategory(e.target.value as any)}
                   className="w-full bg-linen border border-border rounded-xl px-3 py-2 text-espresso focus:outline-none focus:border-cocoa"
                 >
-                  <option value="GOVERNMENT">Government Exam (UPSC, State PSC, SSC, Bank)</option>
+                  <option value="GOVERNMENT">Government Exam (SSC, UPSC, Bank, Railway)</option>
                   <option value="ENGINEERING">Software Engineering & Tech Track</option>
                   <option value="CORPORATE">Management & Corporate Career</option>
                   <option value="MANAGEMENT">Higher Studies / MBA Prep</option>
@@ -350,7 +333,7 @@ export const Sidebar: React.FC = () => {
                 <label className="block text-camel font-bold mb-1">Target Exam or Goal Title</label>
                 <input
                   type="text"
-                  placeholder="e.g. UPSC Prelims 2026 / Senior ML Engineer"
+                  placeholder="e.g. SSC CGL 2026 Tier 1 & 2 / Senior Full Stack Dev"
                   value={wsTargetExam}
                   onChange={(e) => setWsTargetExam(e.target.value)}
                   className="w-full bg-linen border border-border rounded-xl px-3 py-2 text-espresso focus:outline-none focus:border-cocoa"
@@ -361,7 +344,7 @@ export const Sidebar: React.FC = () => {
                 <label className="block text-camel font-bold mb-1">Key Milestone / Target Score</label>
                 <input
                   type="text"
-                  placeholder="e.g. Rank under 500 / 120+ Marks"
+                  placeholder="e.g. 160+ Marks / Master System Design & Microservices"
                   value={wsTargetGoal}
                   onChange={(e) => setWsTargetGoal(e.target.value)}
                   className="w-full bg-linen border border-border rounded-xl px-3 py-2 text-espresso focus:outline-none focus:border-cocoa"
@@ -388,7 +371,7 @@ export const Sidebar: React.FC = () => {
         </div>
       )}
 
-      {/* Modal 2: Register New User / Start Fresh From 0 */}
+      {/* Modal 2: Register New User */}
       {showUserModal && (
         <div className="fixed inset-0 bg-espresso/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <div className="w-full max-w-md p-6 rounded-3xl bg-white border border-border text-espresso shadow-2xl space-y-4">
