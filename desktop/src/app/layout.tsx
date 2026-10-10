@@ -1,5 +1,6 @@
 import React from 'react';
 import './globals.css';
+import { AuthGuard } from '@/components/auth/AuthGuard';
 
 export const metadata = {
   title: 'AI Desktop Companion Dashboard',
@@ -20,7 +21,9 @@ export default function RootLayout({
         />
       </head>
       <body className="bg-white text-espresso antialiased">
-        {children}
+        <AuthGuard>
+          {children}
+        </AuthGuard>
       </body>
     </html>
   );

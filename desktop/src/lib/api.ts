@@ -9,26 +9,42 @@ export const api = axios.create({
   },
 });
 
+api.interceptors.request.use((config) => {
+  if (typeof window !== 'undefined') {
+    const token = localStorage.getItem('companion_auth_token');
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+  }
+  return config;
+});
+
 export interface Task {
   id?: number;
   title: string;
   description?: string;
+  category?: string;
   priority: 'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT';
   estimatedMinutes: number;
   actualMinutes?: number;
-  status: 'TODO' | 'IN_PROGRESS' | 'COMPLETED' | 'SKIPPED';
+  status: 'TODO' | 'IN_PROGRESS' | 'COMPLETED' | 'SKIPPED' | 'IN_DUE';
   dueDate?: string;
+  startTime?: string;
+  endTime?: string;
   goalId?: number;
   isTopPriority?: boolean;
+  isGoalTaskOnly?: boolean;
 }
 
 export interface Goal {
   id?: number;
   title: string;
   description?: string;
+  category?: string;
   goalType: 'LONG_TERM' | 'MEDIUM_TERM' | 'SHORT_TERM';
   targetDate?: string;
-  status?: 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED';
+  deadline?: string;
+  status?: 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED' | 'LATER' | 'IN_DUE';
   progressPercentage?: number;
 }
 
@@ -352,3 +368,161 @@ export const updateNote = async (id: number, note: Partial<Note>): Promise<Note>
 export const deleteNote = async (id: number): Promise<void> => {
   await api.delete(`/notes/${id}`);
 };
+
+export const deleteTask = async (id: number): Promise<void> => {
+  await api.delete(`/tasks/${id}`);
+};
+
+export const updateGoal = async (id: number, goal: Partial<Goal>): Promise<Goal> => {
+  const res = await api.put(`/goals/${id}`, goal);
+  return res.data;
+};
+
+export const deleteGoal = async (id: number): Promise<void> => {
+  await api.delete(`/goals/${id}`);
+};
+
+export const fetchGoalSubtasks = async (goalId: number): Promise<Task[]> => {
+  const res = await api.get(`/tasks/goal/${goalId}`);
+  return res.data;
+};
+
+// Habit CRUD API
+export const fetchHabits = async (): Promise<Habit[]> => {
+  const res = await api.get('/habits');
+  return res.data;
+};
+
+export const createHabit = async (habit: Habit): Promise<Habit> => {
+  const res = await api.post('/habits', habit);
+  return res.data;
+};
+
+export const updateHabit = async (id: number, habit: Partial<Habit>): Promise<Habit> => {
+  const res = await api.put(`/habits/${id}`, habit);
+  return res.data;
+};
+
+export const deleteHabit = async (id: number): Promise<void> => {
+  await api.delete(`/habits/${id}`);
+};
+
+export const logHabitCompletion = async (id: number): Promise<Habit> => {
+  const res = await api.post(`/habits/${id}/log`);
+  return res.data;
+};
+
+// Trash Bin API
+export interface TrashResponse {
+  tasks: Task[];
+  goals: Goal[];
+  habits: Habit[];
+  notes: Note[];
+  mistakes: MistakeRecord[];
+  tests: TestAttempt[];
+  totalCount: number;
+}
+
+export const fetchTrash = async (): Promise<TrashResponse> => {
+  const res = await api.get('/trash');
+  return res.data;
+};
+
+export const restoreTrashItem = async (type: string, id: number): Promise<void> => {
+  await api.post(`/trash/restore/${type}/${id}`);
+};
+
+export const purgeTrashItem = async (type: string, id: number): Promise<void> => {
+  await api.delete(`/trash/purge/${type}/${id}`);
+};
+
+export const emptyTrash = async (): Promise<void> => {
+  await api.delete('/trash/empty');
+};
+
+// Career Workspace & Subject API
+export interface CareerWorkspace {
+  id?: number;
+  name: string;
+  description?: string;
+  icon?: string;
+}
+
+export interface CareerSubject {
+  id?: number;
+  workspaceId: number;
+  subjectName: string;
+  description?: string;
+  color?: string;
+}
+
+export const fetchCareerWorkspaces = async (): Promise<CareerWorkspace[]> => {
+  const res = await api.get('/career-workspaces');
+  return res.data;
+};
+
+export const createCareerWorkspace = async (workspace: CareerWorkspace): Promise<CareerWorkspace> => {
+  const res = await api.post('/career-workspaces', workspace);
+  return res.data;
+};
+
+export const updateCareerWorkspace = async (id: number, workspace: Partial<CareerWorkspace>): Promise<CareerWorkspace> => {
+  const res = await api.put(`/career-workspaces/${id}`, workspace);
+  return res.data;
+};
+
+export const deleteCareerWorkspace = async (id: number): Promise<void> => {
+  await api.delete(`/career-workspaces/${id}`);
+};
+
+export const fetchCareerSubjects = async (workspaceId: number): Promise<CareerSubject[]> => {
+  const res = await api.get(`/career-workspaces/${workspaceId}/subjects`);
+  return res.data;
+};
+
+export const createCareerSubject = async (workspaceId: number, subject: CareerSubject): Promise<CareerSubject> => {
+  const res = await api.post(`/career-workspaces/${workspaceId}/subjects`, subject);
+  return res.data;
+};
+
+export const updateCareerSubject = async (subjectId: number, subject: Partial<CareerSubject>): Promise<CareerSubject> => {
+  const res = await api.put(`/career-workspaces/subjects/${subjectId}`, subject);
+  return res.data;
+};
+
+export const deleteCareerSubject = async (subjectId: number): Promise<void> => {
+  await api.delete(`/career-workspaces/subjects/${subjectId}`);
+};
+
+export const deleteVisionBoardItem = async (itemId: number): Promise<void> => {
+  await api.delete(`/vision-boards/items/${itemId}`);
+};
+
+// User Category API
+export interface UserCategory {
+  id?: number;
+  name: string;
+  color?: string;
+  icon?: string;
+}
+
+export const fetchCategories = async (): Promise<UserCategory[]> => {
+  const res = await api.get('/categories');
+  return res.data;
+};
+
+export const createCategory = async (category: UserCategory): Promise<UserCategory> => {
+  const res = await api.post('/categories', category);
+  return res.data;
+};
+
+export const updateCategory = async (id: number, category: Partial<UserCategory>): Promise<UserCategory> => {
+  const res = await api.put(`/categories/${id}`, category);
+  return res.data;
+};
+
+export const deleteCategory = async (id: number): Promise<void> => {
+  await api.delete(`/categories/${id}`);
+};
+
+

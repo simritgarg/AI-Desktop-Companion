@@ -17,6 +17,8 @@ public class HabitEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    private Long userId;
+
     @Column(nullable = false)
     private String title;
 
@@ -36,10 +38,18 @@ public class HabitEntity {
 
     private LocalDateTime lastCompletedAt;
 
+    @Builder.Default
+    private Boolean isDeleted = false;
+
+    private LocalDateTime deletedAt;
+
     private LocalDateTime createdAt;
 
     @PrePersist
     protected void onCreate() {
         this.createdAt = LocalDateTime.now();
+        if (this.isDeleted == null) this.isDeleted = false;
+        if (this.currentStreak == null) this.currentStreak = 0;
+        if (this.bestStreak == null) this.bestStreak = 0;
     }
 }

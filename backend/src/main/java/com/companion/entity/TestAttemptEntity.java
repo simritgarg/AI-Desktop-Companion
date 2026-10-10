@@ -17,6 +17,8 @@ public class TestAttemptEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    private Long userId;
+
     private Long platformId;
 
     @Column(nullable = false)
@@ -71,6 +73,11 @@ public class TestAttemptEntity {
     @Column(columnDefinition = "TEXT")
     private String rawImportSource; // Store original CSV row or raw file snippet for verification
 
+    @Builder.Default
+    private Boolean isDeleted = false;
+
+    private LocalDateTime deletedAt;
+
     private LocalDateTime createdAt;
 
     @PrePersist
@@ -78,6 +85,7 @@ public class TestAttemptEntity {
         if (this.attemptDate == null) {
             this.attemptDate = LocalDateTime.now();
         }
+        if (this.isDeleted == null) this.isDeleted = false;
         this.createdAt = LocalDateTime.now();
     }
 }

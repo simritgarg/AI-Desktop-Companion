@@ -2,330 +2,177 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { 
-  Flame, 
-  Trophy, 
-  Zap, 
-  Coffee, 
-  Settings, 
-  Timer, 
-  BarChart3, 
-  BookOpen, 
-  LogOut, 
-  LogIn, 
-  UserPlus, 
-  ChevronDown,
-  User,
-  X
-} from 'lucide-react';
-import { useUserStore } from '@/lib/userStore';
+import { useAuthStore } from '@/lib/authStore';
+import { Flame, Trophy, Zap, Coffee, User, LogOut, ChevronDown, Mail, Award, Trash2, Menu, Settings, ShieldCheck, Bot, BookOpen } from 'lucide-react';
+import { BadgesModal } from './BadgesModal';
+import { TrashModal } from './TrashModal';
 
-export const Header: React.FC = () => {
-  const { profile, registerNewUser } = useUserStore();
-  const [showDropdown, setShowDropdown] = useState(false);
-  const [showLoginModal, setShowLoginModal] = useState(false);
-  const [showRegisterModal, setShowRegisterModal] = useState(false);
+interface HeaderProps {
+  onToggleMobileSidebar?: () => void;
+}
 
-  // Form states
-  const [emailInput, setEmailInput] = useState('');
-  const [passwordInput, setPasswordInput] = useState('');
+export const Header: React.FC<HeaderProps> = ({ onToggleMobileSidebar }) => {
+  const { user, logout } = useAuthStore();
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [showBadges, setShowBadges] = useState(false);
+  const [showTrash, setShowTrash] = useState(false);
 
-  const [regName, setRegName] = useState('');
-  const [regEmail, setRegEmail] = useState('');
-  const [regTarget, setRegTarget] = useState('');
-
-  const handleLoginSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    setShowLoginModal(false);
-    alert(`Logged in successfully as ${emailInput || profile.email}`);
-  };
-
-  const handleRegisterSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!regName.trim()) return;
-    registerNewUser(regName, regEmail, regTarget || 'SSC CGL & Tech Preparation');
-    setShowRegisterModal(false);
-    setRegName('');
-    setRegEmail('');
-    setRegTarget('');
-  };
-
-  const handleLogout = () => {
-    if (confirm('Are you sure you want to log out? Your current progress will remain saved.')) {
-      setShowDropdown(false);
-      alert('Logged out cleanly. You can sign in anytime to resume your progress!');
-    }
-  };
+  const userName = user?.name || 'Simrit Garg';
+  const initial = userName.charAt(0).toUpperCase();
 
   return (
     <>
-      <header className="h-14 px-6 flex items-center justify-between border-b border-border bg-white/80 backdrop-blur-sm sticky top-0 z-20">
-        {/* Left Branding */}
+      <header className="h-16 border-b border-[#E8E0D5] bg-white/80 backdrop-blur-md px-4 sm:px-6 flex items-center justify-between shadow-sm">
         <div className="flex items-center gap-2">
-          <Coffee className="w-4 h-4 text-cocoa" />
-          <span className="text-sm font-semibold text-espresso">
+          {/* Mobile Sidebar Hamburger Toggle */}
+          <button
+            onClick={onToggleMobileSidebar}
+            className="md:hidden p-2 rounded-xl bg-linen text-espresso hover:bg-khaki/30 transition-colors"
+          >
+            <Menu className="w-5 h-5" />
+          </button>
+
+          <Coffee className="w-4 h-4 text-cocoa shrink-0" />
+          <span className="text-xs sm:text-sm font-bold text-espresso truncate max-w-[200px] sm:max-w-none">
             Personal SSC CGL & Career Command Workspace
           </span>
         </div>
 
-        {/* Right Action Widgets & Account Icon Dropdown */}
-        <div className="flex items-center gap-3">
-          {/* Day Streak Badge */}
-          <Link href="/habits" className="flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-orange-50 text-orange-700 border border-orange-200 hover:bg-orange-100 transition-colors">
-            <Flame className="w-3.5 h-3.5 fill-orange-400 text-orange-400" />
-            <span>{profile.streakCount || 1} Day Streak</span>
-          </Link>
-
-          {/* Level & XP Badge */}
-          <div className="flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-cocoa/5 text-cocoa border border-cocoa/15">
-            <Trophy className="w-3.5 h-3.5 text-camel" />
-            <span>Lvl {profile.level || 1}</span>
-            <span className="opacity-60 font-normal">| {profile.xpPoints || 0} XP</span>
+        <div className="flex items-center gap-2 sm:gap-4">
+          {/* Streak Badge */}
+          <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-800 text-xs font-bold">
+            <Flame className="w-4 h-4 fill-amber-500 text-amber-500" />
+            <span>{user?.streakDays ?? 1} Day Streak</span>
           </div>
 
-          {/* Focus Energy Badge */}
-          <Link href="/focus" className="flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100 transition-colors">
-            <Zap className="w-3.5 h-3.5 text-emerald-500 fill-emerald-500" />
-            <span>Optimal Energy</span>
-          </Link>
+          {/* Level & XP */}
+          <div className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1 rounded-full bg-purple-500/10 border border-purple-500/20 text-purple-900 text-xs font-bold">
+            <Trophy className="w-3.5 sm:w-4 h-3.5 sm:h-4 text-purple-600" />
+            <span>Lvl {user?.level ?? 1}</span>
+            <span className="text-gray-500 font-normal hidden xs:inline">| {user?.xp ?? 0} XP</span>
+          </div>
 
-          {/* Account Icon Dropdown ONLY (Settings Cog Removed as Requested) */}
+          {/* Energy Status */}
+          <div className="hidden md:flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-800 text-xs font-bold">
+            <Zap className="w-4 h-4 text-emerald-600 fill-emerald-600" />
+            <span>Optimal Energy</span>
+          </div>
+
+          {/* Account Icon Circle & Dropdown Menu */}
           <div className="relative">
             <button
-              onClick={() => setShowDropdown(!showDropdown)}
-              className="flex items-center gap-1.5 p-1 px-2 rounded-full bg-cocoa/10 hover:bg-cocoa/20 text-espresso border border-cocoa/20 transition-all text-xs font-semibold"
-              title="Account & Quick Navigation Menu"
+              onClick={() => setDropdownOpen(!dropdownOpen)}
+              className="w-9 h-9 rounded-full bg-[#D7C9B8] hover:bg-[#C8A279] text-[#2A1810] font-bold text-sm flex items-center justify-center border border-[#B2967D] shadow-sm transition-all focus:outline-none relative"
             >
-              <div className="w-7 h-7 rounded-full bg-camel text-espresso flex items-center justify-center font-bold text-xs shadow-sm">
-                {profile.name ? profile.name.charAt(0).toUpperCase() : <User className="w-4 h-4" />}
-              </div>
-              <ChevronDown className={`w-3.5 h-3.5 text-camel transition-transform ${showDropdown ? 'rotate-180' : ''}`} />
+              <span>{initial}</span>
+              <ChevronDown className="w-3 h-3 absolute -bottom-0.5 -right-0.5 text-[#2A1810] bg-white rounded-full border border-gray-300" />
             </button>
 
-            {/* Dropdown Menu Popup */}
-            {showDropdown && (
-              <div className="absolute right-0 mt-2 w-56 rounded-2xl bg-white border border-border text-espresso shadow-2xl p-2 z-50 text-xs space-y-1">
-                {/* User Info Header */}
-                <div className="px-3 py-2 rounded-xl bg-linen border border-border">
-                  <p className="font-bold text-espresso truncate">{profile.name}</p>
-                  <p className="text-[10px] text-camel truncate">Day {profile.currentDay} • {profile.primaryTarget}</p>
+            {/* Dropdown Menu */}
+            {dropdownOpen && (
+              <>
+                <div 
+                  className="fixed inset-0 z-40" 
+                  onClick={() => setDropdownOpen(false)} 
+                />
+                <div className="absolute right-0 mt-2 w-64 bg-white border border-[#E8E0D5] rounded-2xl shadow-xl p-2 z-50 text-espresso animate-in fade-in slide-in-from-top-2 duration-150">
+                  {/* User Profile Summary */}
+                  <div className="px-3 py-2.5 bg-linen/60 rounded-xl mb-2 border border-khaki/40">
+                    <p className="font-bold text-sm text-espresso truncate">{userName}</p>
+                    <p className="text-[11px] text-camel flex items-center gap-1 truncate mt-0.5">
+                      <Mail className="w-3 h-3 text-cocoa shrink-0" />
+                      <span className="truncate">{user?.email || 'Logged in'}</span>
+                    </p>
+                    {user?.primaryTarget && (
+                      <span className="inline-block mt-1.5 px-2 py-0.5 rounded text-[10px] font-bold bg-cocoa/10 text-cocoa border border-cocoa/20">
+                        {user.primaryTarget}
+                      </span>
+                    )}
+                  </div>
+
+                  {/* Quick Navigation Links */}
+                  <Link
+                    href="/companion"
+                    onClick={() => setDropdownOpen(false)}
+                    className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-espresso hover:bg-linen transition-colors"
+                  >
+                    <Bot className="w-4 h-4 text-purple-600" />
+                    <span>Companion AI Coach</span>
+                  </Link>
+
+                  <Link
+                    href="/diary"
+                    onClick={() => setDropdownOpen(false)}
+                    className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-espresso hover:bg-linen transition-colors"
+                  >
+                    <BookOpen className="w-4 h-4 text-amber-600" />
+                    <span>Personal Diary</span>
+                  </Link>
+
+                  <Link
+                    href="/settings"
+                    onClick={() => setDropdownOpen(false)}
+                    className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-espresso hover:bg-linen transition-colors"
+                  >
+                    <Settings className="w-4 h-4 text-cocoa" />
+                    <span>Settings & Preferences</span>
+                  </Link>
+
+                  {/* Badges Modal Trigger */}
+                  <button
+                    onClick={() => {
+                      setDropdownOpen(false);
+                      setShowBadges(true);
+                    }}
+                    className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-amber-800 hover:bg-amber-50 transition-colors"
+                  >
+                    <Award className="w-4 h-4 text-amber-600" />
+                    <span>My Achievement Badges</span>
+                  </button>
+
+                  {/* Trash Bin Modal Trigger */}
+                  <button
+                    onClick={() => {
+                      setDropdownOpen(false);
+                      setShowTrash(true);
+                    }}
+                    className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-rose-800 hover:bg-rose-50 transition-colors"
+                  >
+                    <Trash2 className="w-4 h-4 text-rose-600" />
+                    <span>Trash Bin (30-day auto cleanup)</span>
+                  </button>
+
+                  {/* Settings & Mode Options */}
+                  <div className="px-3 py-2 text-[11px] text-camel flex items-center gap-2 border-t border-border mt-1">
+                    <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
+                    <span>Accountability Mode: <strong>Balanced</strong></span>
+                  </div>
+
+                  <div className="border-t border-border my-1" />
+
+                  {/* Log Out Button */}
+                  <button
+                    onClick={() => {
+                      setDropdownOpen(false);
+                      logout();
+                    }}
+                    className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-xs font-bold text-rose-600 hover:bg-rose-50 transition-colors"
+                  >
+                    <LogOut className="w-4 h-4" />
+                    <span>Log Out</span>
+                  </button>
                 </div>
-
-                <div className="h-px bg-border/60 my-1" />
-
-                {/* Quick Navigation Items */}
-                <Link
-                  href="/settings"
-                  onClick={() => setShowDropdown(false)}
-                  className="flex items-center gap-2.5 px-3 py-2 rounded-xl hover:bg-cocoa/10 font-semibold text-espresso transition-colors"
-                >
-                  <Settings className="w-4 h-4 text-cocoa" />
-                  <span>Settings & Preferences</span>
-                </Link>
-
-                <Link
-                  href="/focus"
-                  onClick={() => setShowDropdown(false)}
-                  className="flex items-center gap-2.5 px-3 py-2 rounded-xl hover:bg-cocoa/10 font-semibold text-espresso transition-colors"
-                >
-                  <Timer className="w-4 h-4 text-cocoa" />
-                  <span>Focus Timer</span>
-                </Link>
-
-                <Link
-                  href="/habits"
-                  onClick={() => setShowDropdown(false)}
-                  className="flex items-center gap-2.5 px-3 py-2 rounded-xl hover:bg-cocoa/10 font-semibold text-espresso transition-colors"
-                >
-                  <Flame className="w-4 h-4 text-orange-500" />
-                  <span>Habits & Streaks</span>
-                </Link>
-
-                <Link
-                  href="/analytics"
-                  onClick={() => setShowDropdown(false)}
-                  className="flex items-center gap-2.5 px-3 py-2 rounded-xl hover:bg-cocoa/10 font-semibold text-espresso transition-colors"
-                >
-                  <BarChart3 className="w-4 h-4 text-cocoa" />
-                  <span>Analytics & AI Insights</span>
-                </Link>
-
-                <Link
-                  href="/diary"
-                  onClick={() => setShowDropdown(false)}
-                  className="flex items-center gap-2.5 px-3 py-2 rounded-xl hover:bg-cocoa/10 font-semibold text-espresso transition-colors"
-                >
-                  <BookOpen className="w-4 h-4 text-cocoa" />
-                  <span>Personal Diary</span>
-                </Link>
-
-                <div className="h-px bg-border/60 my-1" />
-
-                {/* Account Actions */}
-                <button
-                  onClick={() => {
-                    setShowDropdown(false);
-                    setShowLoginModal(true);
-                  }}
-                  className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl hover:bg-emerald-50 text-emerald-700 font-semibold transition-colors"
-                >
-                  <LogIn className="w-4 h-4 text-emerald-600" />
-                  <span>Sign In to Account</span>
-                </button>
-
-                <button
-                  onClick={() => {
-                    setShowDropdown(false);
-                    setShowRegisterModal(true);
-                  }}
-                  className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl hover:bg-cocoa/10 text-cocoa font-semibold transition-colors"
-                >
-                  <UserPlus className="w-4 h-4 text-cocoa" />
-                  <span>New Account Registration</span>
-                </button>
-
-                <button
-                  onClick={handleLogout}
-                  className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl hover:bg-rose-50 text-rose-600 font-semibold transition-colors"
-                >
-                  <LogOut className="w-4 h-4 text-rose-500" />
-                  <span>Log Out</span>
-                </button>
-              </div>
+              </>
             )}
           </div>
         </div>
       </header>
 
-      {/* Sign In Modal */}
-      {showLoginModal && (
-        <div className="fixed inset-0 bg-espresso/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="w-full max-w-md p-6 rounded-3xl bg-white border border-border text-espresso shadow-2xl space-y-4">
-            <div className="flex items-center justify-between">
-              <h3 className="text-base font-extrabold flex items-center gap-2">
-                <LogIn className="w-5 h-5 text-cocoa" /> Sign In to Your Account
-              </h3>
-              <button onClick={() => setShowLoginModal(false)} className="text-khaki hover:text-espresso">
-                <X className="w-5 h-5" />
-              </button>
-            </div>
+      {/* Badges Modal */}
+      {showBadges && <BadgesModal onClose={() => setShowBadges(false)} />}
 
-            <form onSubmit={handleLoginSubmit} className="space-y-3 text-xs">
-              <div>
-                <label className="block text-camel font-bold mb-1">Email Address</label>
-                <input
-                  type="email"
-                  required
-                  placeholder="user@example.com"
-                  value={emailInput}
-                  onChange={(e) => setEmailInput(e.target.value)}
-                  className="w-full bg-linen border border-border rounded-xl px-3 py-2 text-espresso focus:outline-none focus:border-cocoa"
-                />
-              </div>
-
-              <div>
-                <label className="block text-camel font-bold mb-1">Password</label>
-                <input
-                  type="password"
-                  required
-                  placeholder="••••••••"
-                  value={passwordInput}
-                  onChange={(e) => setPasswordInput(e.target.value)}
-                  className="w-full bg-linen border border-border rounded-xl px-3 py-2 text-espresso focus:outline-none focus:border-cocoa"
-                />
-              </div>
-
-              <div className="flex justify-end gap-2 pt-3 border-t border-border/60">
-                <button
-                  type="button"
-                  onClick={() => setShowLoginModal(false)}
-                  className="px-4 py-2 rounded-xl bg-linen text-cocoa font-semibold"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="px-5 py-2 rounded-xl bg-cocoa text-white font-bold shadow-md hover:bg-espresso transition-colors"
-                >
-                  Sign In & Sync
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {/* New Account Registration Modal */}
-      {showRegisterModal && (
-        <div className="fixed inset-0 bg-espresso/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="w-full max-w-md p-6 rounded-3xl bg-white border border-border text-espresso shadow-2xl space-y-4">
-            <div className="flex items-center justify-between">
-              <h3 className="text-base font-extrabold flex items-center gap-2">
-                <UserPlus className="w-5 h-5 text-cocoa" /> Register New Aspirant Account
-              </h3>
-              <button onClick={() => setShowRegisterModal(false)} className="text-khaki hover:text-espresso">
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            <p className="text-xs text-camel leading-relaxed">
-              Registering a new account will start progress strictly from <strong>Day 1 (0% progress)</strong> for a fresh user. If you are an existing user, signing in restores your saved progress!
-            </p>
-
-            <form onSubmit={handleRegisterSubmit} className="space-y-3.5 text-xs">
-              <div>
-                <label className="block text-camel font-bold mb-1">Full Name *</label>
-                <input
-                  type="text"
-                  required
-                  placeholder="e.g. Simrit Garg"
-                  value={regName}
-                  onChange={(e) => setRegName(e.target.value)}
-                  className="w-full bg-linen border border-border rounded-xl px-3 py-2 text-espresso focus:outline-none focus:border-cocoa"
-                />
-              </div>
-
-              <div>
-                <label className="block text-camel font-bold mb-1">Email Address</label>
-                <input
-                  type="email"
-                  placeholder="simrit@example.com"
-                  value={regEmail}
-                  onChange={(e) => setRegEmail(e.target.value)}
-                  className="w-full bg-linen border border-border rounded-xl px-3 py-2 text-espresso focus:outline-none focus:border-cocoa"
-                />
-              </div>
-
-              <div>
-                <label className="block text-camel font-bold mb-1">Primary Preparation Goal</label>
-                <input
-                  type="text"
-                  placeholder="e.g. SSC CGL 2026 & Full Stack Engineering"
-                  value={regTarget}
-                  onChange={(e) => setRegTarget(e.target.value)}
-                  className="w-full bg-linen border border-border rounded-xl px-3 py-2 text-espresso focus:outline-none focus:border-cocoa"
-                />
-              </div>
-
-              <div className="flex justify-end gap-2 pt-3 border-t border-border/60">
-                <button
-                  type="button"
-                  onClick={() => setShowRegisterModal(false)}
-                  className="px-4 py-2 rounded-xl bg-linen text-cocoa font-semibold"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="px-5 py-2 rounded-xl bg-cocoa text-white font-bold shadow-md hover:bg-espresso transition-colors"
-                >
-                  Start Fresh (Day 1)
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
+      {/* Trash Modal */}
+      {showTrash && <TrashModal onClose={() => setShowTrash(false)} />}
     </>
   );
 };

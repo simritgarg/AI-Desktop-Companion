@@ -15,6 +15,7 @@ const techTracks = [
 ];
 
 export default function ITCareerPage() {
+  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const { appTheme } = useCompanionStore();
   const isCoffee = appTheme === 'COFFEE';
 
@@ -91,10 +92,10 @@ export default function ITCareerPage() {
   };
 
   return (
-    <div className="flex min-h-screen bg-linen/30">
-      <Sidebar />
-      <div className="flex-1 flex flex-col">
-        <Header />
+    <div className="flex min-h-screen bg-linen/30 font-sans">
+      <Sidebar isOpenMobile={mobileSidebarOpen} onCloseMobile={() => setMobileSidebarOpen(false)} />
+      <div className="flex-1 flex flex-col min-w-0">
+        <Header onToggleMobileSidebar={() => setMobileSidebarOpen(true)} />
 
         <main className="p-8 max-w-6xl w-full mx-auto space-y-8">
           {/* Header Banner */}

@@ -20,11 +20,14 @@ public class UserEntity {
     @Column(unique = true, nullable = false)
     private String username;
 
-    @Column(nullable = false)
+    @Column(unique = true, nullable = false)
     private String email;
 
     @Column(nullable = false)
     private String password;
+
+    @Builder.Default
+    private String primaryTarget = "General Goal";
 
     @Builder.Default
     private String accountabilityMode = "BALANCED"; // FRIENDLY, BALANCED, STRICT, NO_EXCUSES
